@@ -1,0 +1,48 @@
+server:
+      port: 8081
+spring:
+   application : 
+      name : fakeshopapi
+   datasource:
+      url: jdbc:mysql://127.0.0.1:4000/exampledb?useUnicode=true&serverTimezone=Asia/Seoul
+      username: c91sy
+      password: 2781
+# 엔티티 변경 사항을 반영하기 위해 자동으로 데이터베이스 스키마를 업데이트합니다. 하지만 실제 프로덕션 환경에서는 주의해서 사용해야 함    
+   jpa:
+     hibernate: #가 애플리케이션 시작 시 데이터베이스 스키마를 업데이트합니다. 새로운 엔티티나 필드가 추가된 경우, 기존 테이블에 자동으로 반영. 이는 개발 중에 유용하지만, 운영 환경에서는 주의가 필요
+       ddl-auto: update
+     properties:
+       hibernate:
+         show_sql: true   #JPA가 실행하는 SQL 쿼리를 콘솔 로그에 출력하도록 설정
+         format_sql: true #출력되는 SQL 쿼리를 포맷하여 가독성을 높입니다. 이 설정을 true로 하면 SQL 쿼리가 예쁘게 정렬되어 출력
+     database-platform: org.hibernate.dialect.MySQL8Dialect
+# JWT 토큰의 암호화하된 서명키와 refreshKey키(인증 과정에서 중요한 역할)  key? 32byte (256bit) *<8바이트 = 1비트>*
+# secretKey와 refreshKey 둘 다 각각의 용도로 쓰이는 시크릿 키 여기선 둘다 시크릿키라 쓸수 없어서 access키를 시크릿키로
+jwt:
+  secretKey: 12345678901234567890123456789012
+  refreshKey: 12345678901234567890123456789012
+  accessTokenExpireCount: 1800000 # 30 minutes
+  refreshTokenExpireCount: 86400000 # 1 day (24 hours)
+  
+logging:
+  level:
+    com.example.fakeshopapi: DEBUG
+#    root: DEBUG     
+
+
+
+#logging:
+#  level:
+#    org.springframework: DEBUG
+#    org.apache.coyote.http11: DEBUG    
+    
+#   mvc:
+#       view:
+#         prefix: /WEB-INF/views/
+#         suffix: .html
+#logging:
+# level:
+#   org.springframework: DEBUG
+# thymeleaf:
+# prefix: classpath:/templates/             이게 기본 경로고 확장자명은 .html이다
+# 경로를 바꿀거면 prefix: classpath:/새로운경로/                 확장자명을 바꿀려면 suffix: .fm
