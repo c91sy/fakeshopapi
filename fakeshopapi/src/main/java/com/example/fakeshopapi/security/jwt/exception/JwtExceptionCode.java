@@ -4,8 +4,8 @@ import lombok.Getter;
 
 public enum JwtExceptionCode {
 	
-	BAD_CREDENTIALS("BAD_CREDENTIALS", "잘못된 자격 증명"),   //잘못된 자격 증명인 경우 (null이거나 사용자 예외사용할때 구분)
-	NOT_FOUND_TOKEN("NOT_FOUND_TOKEN", "Headers에 토큰 형식의 값 찾을 수 없음"), 	//찾을 수 없는 토큰인 경우
+	BAD_CREDENTIALS("BAD_CREDENTIALS", "잘못된 자격 증명, Headers에 토큰 형식의 값 찾을 수 없음"),   //잘못된 자격 증명인 경우 (null이거나 사용자 예외사용할때 구분)
+//	NOT_FOUND_TOKEN("NOT_FOUND_TOKEN", "Headers에 토큰 형식의 값 찾을 수 없음"), 	//찾을 수 없는 토큰인 경우
 	INVALID_TOKEN("INVALID_TOKEN", "유효하지 않은 토큰"),						//잘못된 토큰인 경우
     EXPIRED_TOKEN("EXPIRED_TOKEN", "기간이 만료된 토큰"),		//*토큰이 만료된 경우 (JWT 토큰의 유효 기간이 지났을 때 발생)
     TOKEN_EXPIRED("TOKEN_EXPIRED", "만료된 토큰"),  		//*만료된 토큰인 경우(사용자가 만료된 토큰으로 요청을 시도했을 때 발생)

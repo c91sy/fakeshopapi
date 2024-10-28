@@ -42,3 +42,8 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         return this.principal;
     } // 기존 코드를 수정
 }
+
+/*
+ JWT 기반 인증을 처리하기 위해 설계된 Spring Security의 토큰 클래스입니다.
+ 사용자의 인증 정보를 포함하고 있으며, Spring Security의 인증 메커니즘과 통합되어 사용
+ */

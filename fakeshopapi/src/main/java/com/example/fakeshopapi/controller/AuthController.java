@@ -64,10 +64,10 @@ public class AuthController {
         String token = getToken(request);
         if (token == null) { //Spring Security에서 인증 과정에서 제공된 토큰이 잘못되었거나 유효하지 않을 때 발생하는 예외
         	log.warn("로그아웃 실패: 토큰이 존재하지 않습니다.");
-        	request.setAttribute("exception", JwtExceptionCode.NOT_FOUND_TOKEN.getCode()); // 예외 속성 설정
+        	request.setAttribute("exception", JwtExceptionCode.BAD_CREDENTIALS.getCode()); // 예외 속성 설정
         	throw new BadCredentialsException("토큰이 존재하지 않습니다."); // 전역 예외 처리기로 위임
           }
-        // 만료된 토큰인 경우 (사용자가 요청을 시도했을 때 이미 만료된 토큰을 사용하려고 할 때)
+        // 만료된 토큰인 경우 (사용자가 요청을 시도했을 때 이미 만료된 토큰을 사용하려고 할 때
         if (jwtTokenizer.isTokenExpired(token, jwtTokenizer.getAccessSecret())) {
             log.warn("토큰이 만료되었습니다: {}", token); // 만료된 토큰이지만 로그아웃 진행
             request.setAttribute("exception", JwtExceptionCode.TOKEN_EXPIRED.getCode()); // 예외 속성 설정

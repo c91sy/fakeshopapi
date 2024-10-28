@@ -19,6 +19,7 @@ import java.util.HashMap;
 @Component // Spring의 컴포넌트로 등록하여 의존성 주입이 가능
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 /** 요청을 필터링하고 인증을 처리하는 데 집중*/// 인증 실패 시 호출되는 메서드 (로그인과 로그아웃 모두에 사용) 다양한 인증 관련 예외를 처리
+	 	
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         String exception = (String) request.getAttribute("exception");
@@ -26,21 +27,21 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 /* 예외가 null인 경우, 즉 첫 로그인 시 처리 */
         if(exception == null) {
         	log.info("첫 로그인 - 토큰 없음. 로그인 허용.");
-            log.error("entry point >> exception is null");// null 예외 로그 기록(첫 로그인 시에는 아직 발급된 토큰이 없으므로 로그에서 예외로 기록)
             return; //여기서는 아무런 오류 응답을 보내지 않고 메서드 종료
 //            setResponse(response, JwtExceptionCode.NOT_FOUND_TOKEN); // 토큰이 없다는 응답을 설정합니다.
         }
 /*예외 코드에 따라 적절한 처리 수행*/
-        //잘못된 자격 증명인 경우 (null이거나 사용자 예외사용할때 구분)
+        //잘못된 자격 증명인 경우 (null이거나 사용자 예외사용할때 구분) or 찾을 수 없는 토큰인 경우
         if (exception.equals(JwtExceptionCode.BAD_CREDENTIALS.getCode())) {
             log.error("entry point >> bad credentials");
             setResponse(response, JwtExceptionCode.BAD_CREDENTIALS); // 적절한 오류 코드 설정
         }
-        //찾을 수 없는 토큰인 경우
-        else if (exception.equals(JwtExceptionCode.NOT_FOUND_TOKEN.getCode())) {
-            log.error("entry point >> not found token");
-            setResponse(response, JwtExceptionCode.NOT_FOUND_TOKEN);
-        }
+		/*
+		 * //찾을 수 없는 토큰인 경우 else if
+		 * (exception.equals(JwtExceptionCode.NOT_FOUND_TOKEN.getCode())) {
+		 * log.error("entry point >> not found token"); setResponse(response,
+		 * JwtExceptionCode.NOT_FOUND_TOKEN); }
+		 */
         //잘못된 토큰인 경우
         else if(exception.equals(JwtExceptionCode.INVALID_TOKEN.getCode())) {
             log.error("entry point >> invalid token");

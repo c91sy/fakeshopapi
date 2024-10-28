@@ -1,5 +1,7 @@
 package com.example.fakeshopapi.service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,7 +40,6 @@ public class AuthService {
 	 //email이 없을 경우 Exception이 발생한다. Global Exception에 대한 처리가 필요하다. (비밀번호는 아래 로직 구현으로 충분) (일반적인 try-catch 블록을 사용하는 것보다 보안상 더 안전)
        if (member == null) {
     	   log.error("사용자 없음: {}", loginDto.getEmail());
-    	   
            throw new UserNotFoundException("User not found with email: " + loginDto.getEmail());
        } //특정 유형의 오류를 명확히 식별, ResponseEntity를 사용하여 HTTP 응답을 직접 생성하는 대신, 예외를 던져 전역 예외 처리기로 위임
        // 일반적인 리턴 대신 throw new를 사용하여 예외를 발생시키는 것이 더 적절(RESTful API 개발 시 유용)
@@ -63,7 +64,7 @@ public class AuthService {
        String accessToken = jwtTokenizer.createAccessToken(member.getMemberId(), member.getEmail(), member.getName(), roles);
        String refreshToken; // = jwtTokenizer.createRefreshToken(member.getMemberId(), member.getEmail(), member.getName(), roles);
        
-    // 기존 리프레시 토큰이 있는지 확인
+    // 기존 리프레시 토큰이 있는지 확인, 리프레시 토큰이 없을 경우, 새로 생성하고 DB에 저장
        Optional<RefreshToken> existingRefreshToken = refreshTokenService.findRefreshTokenByMemberId(member.getMemberId());
        if (existingRefreshToken.isPresent()) {
            // 기존 리프레시 토큰이 있으면 사용
@@ -112,6 +113,7 @@ public class AuthService {
                 .nickname(name)
                 .build();
     }
+    
 /** 로그아웃 */
 	public void logout(String refreshToken) {
         // 리프레시 토큰 삭제
@@ -156,22 +158,36 @@ public class AuthService {
             // 회원이 존재하지 않는 경우 처리
             throw new IllegalArgumentException("해당 사용자가 없습니다.");
         }
-	}	
+	}
+	
+	/**
+     * 리프레시 토큰 유효성 검사
+     */
+    public boolean validateRefreshToken(String refreshToken) {
+        // 리프레시 토큰이 데이터베이스에 존재하는지 확인
+        Optional<RefreshToken> optionalRefreshToken = refreshTokenService.findRefreshToken(refreshToken);
+        if (optionalRefreshToken.isPresent()) {
+            // 토큰이 존재하면, 추가적인 유효성 검사 (예: 토큰 만료 여부 확인 등)
+            Claims claims = jwtTokenizer.parseRefreshToken(refreshToken);
+            
+            // 만료일 확인
+            LocalDateTime expirationDate = claims.getExpiration().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            // 토큰 만료 여부 확인
+            if (expirationDate.isBefore(LocalDateTime.now())) {
+                
+                return false;  //토큰이 만료된 경우
+            }
+            
+            return true; // 유효한 리프레시 토큰
+        }
+        return false; // 유효하지 않은 리프레시 토큰
+    }
 }
 	    
 		/*
-		 * // 로그인 로직 public MemberLoginResponseDto login(MemberLoginDto loginDto) {
-		 * Member member = memberService.findByEmail(loginDto.getEmail()); // 비밀번호 확인 및
-		 * JWT 생성 로직... }
-		 * 
-		 * // 로그아웃 로직 public void logout(RefreshTokenDto refreshTokenDto) {
-		 * refreshTokenService.deleteRefreshToken(refreshTokenDto.getRefreshToken()); //
-		 * 추가적인 로그아웃 처리... }
-		 * 
-		 * // 리프레시 토큰 갱신 로직 public MemberLoginResponseDto refreshToken(RefreshTokenDto
-		 * refreshTokenDto) { // 리프레시 토큰 검증 및 새로운 토큰 생성 로직... }
-		 * 
-		 * // 토큰 로테이션 로직 public void rotateToken(RefreshTokenDto refreshTokenDto) { //
-		 * 토큰 로테이션 처리 로직... }
+claims.getExpiration(): JWT에서 만료 시간을 추출하는 메서드, toInstant(): Date 객체를 Instant 객체로 변환.
+atZone(ZoneId.systemDefault()): Instant 객체를 시스템 기본 시간대에 맞게 ZonedDateTime으로 변환.
+ZoneId: 시간대를 나타내는 객체로, 시스템 기본 시간대(ZoneId.systemDefault())를 명시적으로 지정해 시간을 변환할 때 사용
+isBefore: LocalDateTime 객체의 메서드로, 두 날짜를 비교해 현재 시간보다 이전인지 확인
+  // LocalDateTime expirationDate = LocalDateTime.now().plusHours(1); // 1시간 후 만료
 		 */
-

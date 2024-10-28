@@ -19,13 +19,8 @@ public class RefreshTokenService {
 /**리프레시 토큰 추가*/
     @Transactional
     public RefreshToken addRefreshToken(RefreshToken refreshToken) {
-    	 try {
-    	        log.debug("리프레시 토큰 저장 요청: {}", refreshToken);
-    	        return refreshTokenRepository.save(refreshToken);
-    	    } catch (Exception e) {
-    	        log.error("리프레시 토큰 저장 중 오류 발생: {}", e.getMessage());
-    	        throw e; // 예외를 다시 던져서 트랜잭션 롤백
-    	    }
+    	log.debug("리프레시 토큰 저장 요청: {}", refreshToken);
+    	return refreshTokenRepository.save(refreshToken); 	    
     }
 /**리프레시 토큰 삭제*/
     @Transactional
@@ -57,3 +52,4 @@ public class RefreshTokenService {
 - 만료 여부 확인: 토큰이 만료되었는지 확인하는 기능을 제공합니다.
  즉, JwtTokenizer는 JWT의 생명 주기와 관련된 모든 기능을 처리
  */
+//Optional은 주로 값이 있을 수도 있고 없을 수도 있는 상황에서 사용돼. 기본적으로 null을 직접 다루는 것을 피하고, null과 관련된 잠재적 오류를 방지함
